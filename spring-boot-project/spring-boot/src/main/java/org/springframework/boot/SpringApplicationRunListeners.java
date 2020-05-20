@@ -43,6 +43,11 @@ class SpringApplicationRunListeners {
 		this.listeners = new ArrayList<>(listeners);
 	}
 
+	/**
+	 * 得到所有的SpringApplicationRunListener
+	 * 其实就是EventPublishingRunListener
+	 * 然后依次调用starting方法
+	 */
 	public void starting() {
 		for (SpringApplicationRunListener listener : this.listeners) {
 			listener.starting();

@@ -76,7 +76,7 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@AutoConfigurationPackage //自动配置包  表示包含这个注解的类的包应该被注册
+@AutoConfigurationPackage //自动配置包  表示包含这个注解的类的包以及该包的子包应该被注册，也就是应该被扫描进来
 @Import(AutoConfigurationImportSelector.class) //借助@import,扫描并实例化满足条件的自动配置的bean，然后加载到IOC容器中
 public @interface EnableAutoConfiguration {
 

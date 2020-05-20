@@ -66,6 +66,10 @@ import org.springframework.util.StringUtils;
  * @see EnableAutoConfiguration
  * @since 1.3.0
  */
+
+/**
+ * 真正实现自动配置的核心类
+ */
 public class AutoConfigurationImportSelector
 		implements DeferredImportSelector, BeanClassLoaderAware, ResourceLoaderAware,
 		BeanFactoryAware, EnvironmentAware, Ordered {
@@ -93,18 +97,23 @@ public class AutoConfigurationImportSelector
 		}
 		AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader
 				.loadMetadata(this.beanClassLoader);
+
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
+
 		//获取所有的自动配置类（classpath*:/META-INF/spring.factories中配置的key为org.springframework.boot.autoconfigure.EnableAutoConfiguration的类）
 		List<String> configurations = getCandidateConfigurations(annotationMetadata,
 				attributes);
+
 		configurations = removeDuplicates(configurations);
 		//需要排除的自动装配类（springboot的主类上 @SpringBootApplication(exclude = {com.demo.starter.config.DemoConfig.class})指定的排除的自动装配类）
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
 		checkExcludedClasses(configurations, exclusions);
 		//将需要排除的类从 configurations remove掉
 		configurations.removeAll(exclusions);
+
 		configurations = filter(configurations, autoConfigurationMetadata);
 		fireAutoConfigurationImportEvents(configurations, exclusions);
+
 		return StringUtils.toStringArray(configurations);
 	}
 
@@ -160,13 +169,24 @@ public class AutoConfigurationImportSelector
 	 *                   attributes}
 	 * @return a list of candidate configurations
 	 */
+	/**
+	 * my:获取候选的配置类
+	 * @param metadata
+	 * @param attributes
+	 * @return
+	 */
 	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
 													  AnnotationAttributes attributes) {
+
+		//SpringFactoriesLoader类里面的属性： public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+		//而且从SpringFactoriesLoader类里面可以看出来spring.factories文件不是唯一的
 		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(
 				getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
+
 		Assert.notEmpty(configurations,
 				"No auto configuration classes found in META-INF/spring.factories. If you "
 						+ "are using a custom packaging, make sure that file is correct.");
+
 		return configurations;
 	}
 

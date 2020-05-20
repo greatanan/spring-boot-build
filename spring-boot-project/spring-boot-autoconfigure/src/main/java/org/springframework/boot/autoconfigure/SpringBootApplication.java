@@ -47,7 +47,9 @@ import org.springframework.core.annotation.AliasFor;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
+//@SpringBootConfiguration只是表明是一个配置类
 @SpringBootConfiguration//Spring Boot的配置类；标注在某个类上，表示一个类提供了Spring Boot应用程序
+//@EnableAutoConfiguration核心注解
 @EnableAutoConfiguration//告诉SpringBoot开启自动配置功能，这样自动配置才能生效
 @ComponentScan(excludeFilters = {//就是自动扫描并加载符合条件的组件
 		@Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),

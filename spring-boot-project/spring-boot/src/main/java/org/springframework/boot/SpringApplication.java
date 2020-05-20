@@ -345,6 +345,7 @@ public class SpringApplication {
 	 * 基础上增加了配置上下文的工具。 ConfigurableApplicationContext是容器的高级接口
 	 */
 	public ConfigurableApplicationContext run(String... args) {
+
 		//记录程序运行时间
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();

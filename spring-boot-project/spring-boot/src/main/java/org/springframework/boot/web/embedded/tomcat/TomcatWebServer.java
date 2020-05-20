@@ -60,6 +60,7 @@ public class TomcatWebServer implements WebServer {
 
 	private final Map<Service, Connector[]> serviceConnectors = new HashMap<>();
 
+	/** //my:Tomcat对象 */
 	private final Tomcat tomcat;
 
 	private final boolean autoStart;
@@ -106,6 +107,7 @@ public class TomcatWebServer implements WebServer {
 				});
 
 				// Start the server to trigger initialization listeners
+				//my:启动tomcat
 				this.tomcat.start();
 
 				// We can re-throw failure exception directly in the main thread
