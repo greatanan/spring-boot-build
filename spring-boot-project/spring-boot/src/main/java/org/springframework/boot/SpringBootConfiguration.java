@@ -37,10 +37,11 @@ import org.springframework.context.annotation.Configuration;
  * @author Phillip Webb
  * @since 1.4.0
  */
+//@SpringBootConfiguration: Spring Boot的配置类；标注在某个类上，表示一个类提供了Spring Boot应用程序
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Configuration
+@Configuration//配置类上来标注这个注解    配置类相当于配置文件；配置类也是容器中的一个组件，它使用了@Component这个注解。
 public @interface SpringBootConfiguration {
 
 }

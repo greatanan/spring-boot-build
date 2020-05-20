@@ -213,6 +213,7 @@ public class SpringApplication {
 
 	private Banner banner;
 
+	/** 资源加载器 */
 	private ResourceLoader resourceLoader;
 
 	private BeanNameGenerator beanNameGenerator;
@@ -227,6 +228,12 @@ public class SpringApplication {
 
 	private boolean registerShutdownHook = true;
 
+	/** 存放初始化器 */
+	/*ApplicationContextInitializer接口的作用，在Spring上下文被刷新之前进行初始化的操作。典型地比如在Web应用中，
+	注册Property Sources或者是激活Profiles。Property Sources比较好理解，就是配置文件。Profiles是Spring为了在不同环境下(如DEV，TEST，PRODUCTION等)，加载不同的配置项而抽象出来的一个实体。
+
+	调用initialize()方法，把初始化的ApplicationContextInitializer实现加载到SpringApplication中
+    */
 	private List<ApplicationContextInitializer<?>> initializers;
 
 	private List<ApplicationListener<?>> listeners;
@@ -263,18 +270,24 @@ public class SpringApplication {
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
+		// 初始化资源加载器
 		this.resourceLoader = resourceLoader;
+		// 资源加载类不能为 null
 		Assert.notNull(primarySources, "PrimarySources must not be null");
+		// 初始化加载资源类集合并去重
 		this.primarySources = new LinkedHashSet<>(Arrays.asList(primarySources));
 		//推断应用类型，后面会根据类型初始化对应的环境。常用的一般都是servlet环境
+		// 推断应用程序是不是web应用
 		this.webApplicationType = deduceWebApplicationType();
 		//初始化classpath下 META-INF/spring.factories中已配置的ApplicationContextInitializer
 		//spring组件spring-context组件中的一个接口，用于ConfigurableApplicationContext通过调用refresh函数来初始化Spring容器之前的回调函数
 		//主要是spring ioc容器刷新之前的一个回调接口，用于处理自定义逻辑。
+		// 设置初始化器(Initializer)
 		setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
 		//初始化classpath下 META-INF/spring.factories中已配置的 ApplicationListener
 		setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
 		//根据调用栈，推断出 main 方法的类名
+		// 推断出主应用入口类
 		this.mainApplicationClass = deduceMainApplicationClass();
 	}
 
@@ -290,21 +303,26 @@ public class SpringApplication {
 		if (ClassUtils.isPresent(REACTIVE_WEB_ENVIRONMENT_CLASS, null)
 				&& !ClassUtils.isPresent(MVC_WEB_ENVIRONMENT_CLASS, null)
 				&& !ClassUtils.isPresent(JERSEY_WEB_ENVIRONMENT_CLASS, null)) {
+			// springboot2.0提出的响应式web应用
 			return WebApplicationType.REACTIVE;
 		}
 		for (String className : WEB_ENVIRONMENT_CLASSES) {
 			if (!ClassUtils.isPresent(className, null)) {
+				// 普通的应用
 				return WebApplicationType.NONE;
 			}
 		}
 		//classpath环境下存在javax.servlet.Servlet或者org.springframework.web.context.ConfigurableWebApplicationContext
+		//// 其实最后返回的就是这个servlet，因为是web应用
 		return WebApplicationType.SERVLET;
 	}
 
 	private Class<?> deduceMainApplicationClass() {
 		try {
+			// 构造一个异常类
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
 			for (StackTraceElement stackTraceElement : stackTrace) {
+				// 通过main的栈帧推断出入口类的名字
 				if ("main".equals(stackTraceElement.getMethodName())) {
 					return Class.forName(stackTraceElement.getClassName());
 				}
@@ -323,7 +341,7 @@ public class SpringApplication {
 	 * @return a running {@link ApplicationContext}
 	 *
 	 * 运行spring应用，并刷新一个新的 ApplicationContext（Spring的上下文）
-	 * ConfigurableApplicationContext 是 ApplicationContext 接口的子接口。在 ApplicationContext
+	 *  ConfigurableApplicationContext 是 ApplicationContext 接口的子接口。在 ApplicationContext
 	 * 基础上增加了配置上下文的工具。 ConfigurableApplicationContext是容器的高级接口
 	 */
 	public ConfigurableApplicationContext run(String... args) {
@@ -332,12 +350,17 @@ public class SpringApplication {
 		stopWatch.start();
 		// ConfigurableApplicationContext Spring 的上下文
 		ConfigurableApplicationContext context = null;
+		// SpringBootExceptionReporter 是异常处理器，启动的时候通过它把异常信息展示出来
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
+		// 设置系统属性java.awt.headless的值，默认为true
 		configureHeadlessProperty();
+
 		//从META-INF/spring.factories中获取监听器
-		//1、获取并启动监听器
+		//1、获取并启动监听器 SpringApplicationRunListeners实际上是一个集合
 		SpringApplicationRunListeners listeners = getRunListeners(args);
+		// 回调所有的SpringApplicationRunListener.starting()方法 把监听器都启动起来
 		listeners.starting();
+
 		try {
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(
 					args);
@@ -475,11 +498,14 @@ public class SpringApplication {
 		// Use names and ensure unique to protect against duplicates
 		//通过指定的classLoader从 META-INF/spring.factories 的资源文件中，
 		//读取 key 为 type.getName() 的 value
+		// 使用 Set保存names
 		Set<String> names = new LinkedHashSet<>(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
 		//创建Spring工厂实例
+		// 根据names进行实例化
 		List<T> instances = createSpringFactoriesInstances(type, parameterTypes,
 				classLoader, args, names);
 		//对Spring工厂实例排序（org.springframework.core.annotation.Order注解指定的顺序）
+		//// 对实例进行排序
 		AnnotationAwareOrderComparator.sort(instances);
 		return instances;
 	}
