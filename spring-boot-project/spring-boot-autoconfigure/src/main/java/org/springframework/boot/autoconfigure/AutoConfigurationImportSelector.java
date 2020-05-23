@@ -92,26 +92,34 @@ public class AutoConfigurationImportSelector
 	//自动装配
 	@Override
 	public String[] selectImports(AnnotationMetadata annotationMetadata) {
+
 		if (!isEnabled(annotationMetadata)) {
 			return NO_IMPORTS;
 		}
-		AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader
-				.loadMetadata(this.beanClassLoader);
 
+		AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader.loadMetadata(this.beanClassLoader);
+
+		//标注类的元信息
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
 
 		//获取所有的自动配置类（classpath*:/META-INF/spring.factories中配置的key为org.springframework.boot.autoconfigure.EnableAutoConfiguration的类）
-		List<String> configurations = getCandidateConfigurations(annotationMetadata,
-				attributes);
+		//获取自动装配的候选类名集合
+		List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
 
+		//移除重复的对象
 		configurations = removeDuplicates(configurations);
+
 		//需要排除的自动装配类（springboot的主类上 @SpringBootApplication(exclude = {com.demo.starter.config.DemoConfig.class})指定的排除的自动装配类）
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
+
 		checkExcludedClasses(configurations, exclusions);
+
 		//将需要排除的类从 configurations remove掉
 		configurations.removeAll(exclusions);
 
+		//过滤 autoConfigurationMetadata作为过滤条件
 		configurations = filter(configurations, autoConfigurationMetadata);
+
 		fireAutoConfigurationImportEvents(configurations, exclusions);
 
 		return StringUtils.toStringArray(configurations);
@@ -168,20 +176,13 @@ public class AutoConfigurationImportSelector
 	 * @param attributes the {@link #getAttributes(AnnotationMetadata) annotation
 	 *                   attributes}
 	 * @return a list of candidate configurations
+	 *
 	 */
-	/**
-	 * my:获取候选的配置类
-	 * @param metadata
-	 * @param attributes
-	 * @return
-	 */
-	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
-													  AnnotationAttributes attributes) {
+	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
 
 		//SpringFactoriesLoader类里面的属性： public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
 		//而且从SpringFactoriesLoader类里面可以看出来spring.factories文件不是唯一的
-		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(
-				getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
+		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
 
 		Assert.notEmpty(configurations,
 				"No auto configuration classes found in META-INF/spring.factories. If you "
@@ -190,7 +191,7 @@ public class AutoConfigurationImportSelector
 		return configurations;
 	}
 
-	/**
+	/**o
 	 * Return the class used by {@link SpringFactoriesLoader} to load configuration
 	 * candidates.
 	 *
