@@ -76,8 +76,10 @@ class BeanDefinitionLoader {
 	 * @param sources  the bean sources
 	 */
 	BeanDefinitionLoader(BeanDefinitionRegistry registry, Object... sources) {
+
 		Assert.notNull(registry, "Registry must not be null");
 		Assert.notEmpty(sources, "Sources must not be empty");
+
 		this.sources = sources;
 		//注解形式的Bean定义读取器 比如：@Configuration @Bean @Component @Controller @Service等等
 		this.annotatedReader = new AnnotatedBeanDefinitionReader(registry);

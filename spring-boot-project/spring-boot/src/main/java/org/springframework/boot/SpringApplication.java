@@ -253,6 +253,7 @@ public class SpringApplication {
 	 * @see #SpringApplication(ResourceLoader, Class...)
 	 * @see #setSources(Set)
 	 */
+	//我们经常写的SpringApplication.run(ApplicationConfiguration.class,args);就是调用的这个方法
 	public SpringApplication(Class<?>... primarySources) {
 		this(null, primarySources);
 	}
@@ -477,6 +478,7 @@ public class SpringApplication {
 
 	private SpringApplicationRunListeners getRunListeners(String[] args) {
 		Class<?>[] types = new Class<?>[]{SpringApplication.class, String[].class};
+		////通过Spring的工厂加载机制监听器
 		return new SpringApplicationRunListeners(logger, getSpringFactoriesInstances(
 				SpringApplicationRunListener.class, types, this, args));
 	}
@@ -665,12 +667,14 @@ public class SpringApplication {
 	 *
 	 * @return the application context (not yet refreshed)
 	 * @see #setApplicationContextClass(Class)
+	 *
+	  mynote: 根据准备阶段的推断Web应用类型创建对应的 ConfigurableApplicationContext
 	 */
 	protected ConfigurableApplicationContext createApplicationContext() {
 		Class<?> contextClass = this.applicationContextClass;
 		if (contextClass == null) {
 			try {
-				switch (this.webApplicationType) {
+				switch (this.webApplicationType/*推断类型*/) {
 					case SERVLET:
 						contextClass = Class.forName(DEFAULT_WEB_CONTEXT_CLASS);
 						break;

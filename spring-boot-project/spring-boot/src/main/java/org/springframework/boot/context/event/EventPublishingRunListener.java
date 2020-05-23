@@ -47,9 +47,14 @@ public class EventPublishingRunListener implements SpringApplicationRunListener,
 
 	private final String[] args;
 
-	/** 简单应用程序事件多播器 */
+	/** 简单应用程序事件多播器 spring框架的*/
 	private final SimpleApplicationEventMulticaster initialMulticaster;
 
+	/**
+	 * 需要传递这两个参数
+	 * @param application
+	 * @param args
+	 */
 	public EventPublishingRunListener(SpringApplication application, String[] args) {
 		this.application = application;
 		this.args = args;

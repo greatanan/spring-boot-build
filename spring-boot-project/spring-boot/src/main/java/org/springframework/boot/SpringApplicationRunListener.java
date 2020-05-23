@@ -61,6 +61,8 @@ public interface SpringApplicationRunListener {
 	 * refreshed.
 	 *
 	 * @param context the application context
+	 *
+	 *                已装载但仍未启动
 	 */
 	void contextLoaded(ConfigurableApplicationContext context);
 
@@ -71,6 +73,7 @@ public interface SpringApplicationRunListener {
 	 *
 	 * @param context the application context.
 	 * @since 2.0.0
+	 * 已启动 此时Spring Bean已经初始化完成
 	 */
 	void started(ConfigurableApplicationContext context);
 
