@@ -6,6 +6,7 @@
 
 	<modules>
 		<module>autoconfigure</module>
+		<module>demo</module>
 	</modules>
 
 	<parent>
