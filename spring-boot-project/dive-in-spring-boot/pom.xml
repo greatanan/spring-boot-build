@@ -7,7 +7,8 @@
 	<modules>
 		<module>autoconfigure</module>
 		<module>demo</module>
-	</modules>
+        <module>springboot-rest</module>
+    </modules>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
