@@ -71,26 +71,29 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 		return ConfigurationPhase.REGISTER_BEAN;
 	}
 
+	/**
+	 * 获得判断结果的方法，ConditionOutcome类中存着boolean类型的结果
+	 */
 	@Override
-	public ConditionOutcome getMatchOutcome(ConditionContext context,
-											AnnotatedTypeMetadata metadata) {
+	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
+
+		//返回一个新的ConditionMessage
 		ConditionMessage matchMessage = ConditionMessage.empty();
+
+		//这是metadata会调用isAnnotated方法判断当前标注的注解是不是ConditionalOnMissingBean
+		//其实@ConditionalOnBean、@ConditionalOnMissingBean和@ConditionalOnSingleCandidate都是使用这个条件类，所以这里做判断
 		if (metadata.isAnnotated(ConditionalOnBean.class.getName())) {
-			BeanSearchSpec spec = new BeanSearchSpec(context, metadata,
-					ConditionalOnBean.class);
-			MatchResult matchResult = getMatchingBeans(context, spec);
+			BeanSearchSpec spec = new BeanSearchSpec(context, metadata, ConditionalOnBean.class);
+			MatchResult matchResult = getMatchingBeans(context, spec);// 获取匹配结果
 			if (!matchResult.isAllMatched()) {
 				String reason = createOnBeanNoMatchReason(matchResult);
-				return ConditionOutcome.noMatch(ConditionMessage
-						.forCondition(ConditionalOnBean.class, spec).because(reason));
+				return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnBean.class, spec).because(reason));
 			}
-			matchMessage = matchMessage.andCondition(ConditionalOnBean.class, spec)
-					.found("bean", "beans")
-					.items(Style.QUOTE, matchResult.getNamesOfAllMatches());
+			matchMessage = matchMessage.andCondition(ConditionalOnBean.class, spec).found("bean", "beans").items(Style.QUOTE, matchResult.getNamesOfAllMatches());
 		}
+
 		if (metadata.isAnnotated(ConditionalOnSingleCandidate.class.getName())) {
-			BeanSearchSpec spec = new SingleCandidateBeanSearchSpec(context, metadata,
-					ConditionalOnSingleCandidate.class);
+			BeanSearchSpec spec = new SingleCandidateBeanSearchSpec(context, metadata, ConditionalOnSingleCandidate.class);
 			MatchResult matchResult = getMatchingBeans(context, spec);
 			if (!matchResult.isAllMatched()) {
 				return ConditionOutcome.noMatch(ConditionMessage
@@ -109,9 +112,12 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 					.found("a primary bean from beans")
 					.items(Style.QUOTE, matchResult.namesOfAllMatches);
 		}
+
+		// 如果当前注入的bean是@ConditionalOnMissingBean
 		if (metadata.isAnnotated(ConditionalOnMissingBean.class.getName())) {
-			BeanSearchSpec spec = new BeanSearchSpec(context, metadata,
-					ConditionalOnMissingBean.class);
+			// 返回一个spec（说明），这里的spec规定了搜索的内容，比如搜索策略、需要搜索的类名......
+			BeanSearchSpec spec = new BeanSearchSpec(context, metadata, ConditionalOnMissingBean.class);
+			//主要的搜索实现在这个方法里
 			MatchResult matchResult = getMatchingBeans(context, spec);
 			if (matchResult.isAnyMatched()) {
 				String reason = createOnMissingBeanNoMatchReason(matchResult);
@@ -119,9 +125,9 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 						.forCondition(ConditionalOnMissingBean.class, spec)
 						.because(reason));
 			}
-			matchMessage = matchMessage.andCondition(ConditionalOnMissingBean.class, spec)
-					.didNotFind("any beans").atAll();
+			matchMessage = matchMessage.andCondition(ConditionalOnMissingBean.class, spec).didNotFind("any beans").atAll();
 		}
+
 		return ConditionOutcome.match(matchMessage);
 	}
 
@@ -189,11 +195,12 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 		}
 		MatchResult matchResult = new MatchResult();
 		boolean considerHierarchy = beans.getStrategy() != SearchStrategy.CURRENT;
-		List<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(
-				beans.getIgnoredTypes(), beanFactory, context, considerHierarchy);
-		for (String type : beans.getTypes()) {
-			Collection<String> typeMatches = getBeanNamesForType(beanFactory, type,
-					context.getClassLoader(), considerHierarchy);
+		List<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(beans.getIgnoredTypes(), beanFactory, context, considerHierarchy);
+
+		for (String type : beans.getTypes()) { // type是我们需要搜索的类的类型
+
+			Collection<String> typeMatches = getBeanNamesForType(beanFactory, type, context.getClassLoader(), considerHierarchy);
+
 			typeMatches.removeAll(beansIgnoredByType);
 			if (typeMatches.isEmpty()) {
 				matchResult.recordUnmatchedType(type);
@@ -247,23 +254,19 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 			throws LinkageError {
 		try {
 			Set<String> result = new LinkedHashSet<>();
-			collectBeanNamesForType(result, beanFactory,
-					ClassUtils.forName(type, classLoader), considerHierarchy);
+			collectBeanNamesForType(result, beanFactory, ClassUtils.forName(type, classLoader), considerHierarchy);
 			return result;
 		} catch (ClassNotFoundException | NoClassDefFoundError ex) {
 			return Collections.emptySet();
 		}
 	}
 
-	private void collectBeanNamesForType(Set<String> result,
-										 ListableBeanFactory beanFactory, Class<?> type, boolean considerHierarchy) {
+	private void collectBeanNamesForType(Set<String> result, ListableBeanFactory beanFactory, Class<?> type, boolean considerHierarchy) {
 		result.addAll(BeanTypeRegistry.get(beanFactory).getNamesForType(type));
 		if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory) {
-			BeanFactory parent = ((HierarchicalBeanFactory) beanFactory)
-					.getParentBeanFactory();
+			BeanFactory parent = ((HierarchicalBeanFactory) beanFactory).getParentBeanFactory();
 			if (parent instanceof ListableBeanFactory) {
-				collectBeanNamesForType(result, (ListableBeanFactory) parent, type,
-						considerHierarchy);
+				collectBeanNamesForType(result, (ListableBeanFactory) parent, type, considerHierarchy);
 			}
 		}
 	}

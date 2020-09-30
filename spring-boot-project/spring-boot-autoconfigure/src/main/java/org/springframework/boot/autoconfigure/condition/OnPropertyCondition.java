@@ -16,10 +16,7 @@
 
 package org.springframework.boot.autoconfigure.condition;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.boot.autoconfigure.condition.ConditionMessage.Style;
 import org.springframework.context.annotation.Condition;
@@ -43,30 +40,42 @@ import org.springframework.util.StringUtils;
  * @see ConditionalOnProperty
  * @since 1.1.0
  */
+
+/**
+ * 处理注解 @ConditionalOnProperty
+ * @see ConditionalOnProperty
+ */
 @Order(Ordered.HIGHEST_PRECEDENCE + 40)
 class OnPropertyCondition extends SpringBootCondition {
 
 	@Override
-	public ConditionOutcome getMatchOutcome(ConditionContext context,
-											AnnotatedTypeMetadata metadata) {
+	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
+
+		// <1> 获得 @ConditionalOnProperty 注解的属性
 		List<AnnotationAttributes> allAnnotationAttributes = annotationAttributesFromMultiValueMap(
-				metadata.getAllAnnotationAttributes(
-						ConditionalOnProperty.class.getName()));
+				Objects.requireNonNull(metadata.getAllAnnotationAttributes(ConditionalOnProperty.class.getName())));
+
+		// <2> 存储不匹配和匹配的结果消息结果
 		List<ConditionMessage> noMatch = new ArrayList<>();
 		List<ConditionMessage> match = new ArrayList<>();
+
+		// <3> 遍历 annotationAttributes 属性数组，逐个判断是否匹配，并添加到结果
 		for (AnnotationAttributes annotationAttributes : allAnnotationAttributes) {
-			ConditionOutcome outcome = determineOutcome(annotationAttributes,
-					context.getEnvironment());
+			ConditionOutcome outcome = determineOutcome(annotationAttributes, context.getEnvironment());
 			(outcome.isMatch() ? match : noMatch).add(outcome.getConditionMessage());
 		}
+		// <4.1> 如果有不匹配的，则返回不匹配
 		if (!noMatch.isEmpty()) {
 			return ConditionOutcome.noMatch(ConditionMessage.of(noMatch));
 		}
+		// <4.2> 如果都匹配，则返回匹配
 		return ConditionOutcome.match(ConditionMessage.of(match));
 	}
 
-	private List<AnnotationAttributes> annotationAttributesFromMultiValueMap(
-			MultiValueMap<String, Object> multiValueMap) {
+	/**
+	 * 获得 @ConditionalOnProperty 注解的属性
+	 */
+	private List<AnnotationAttributes> annotationAttributesFromMultiValueMap(MultiValueMap<String, Object> multiValueMap) {
 		List<Map<String, Object>> maps = new ArrayList<>();
 		multiValueMap.forEach((key, value) -> {
 			for (int i = 0; i < value.size(); i++) {
@@ -87,18 +96,22 @@ class OnPropertyCondition extends SpringBootCondition {
 		return annotationAttributes;
 	}
 
-	private ConditionOutcome determineOutcome(AnnotationAttributes annotationAttributes,
-											  PropertyResolver resolver) {
+	private ConditionOutcome determineOutcome(AnnotationAttributes annotationAttributes, PropertyResolver resolver) {
+		// <1> 解析成 Spec 对象  Spec 是 OnPropertyCondition 的内部静态类
 		Spec spec = new Spec(annotationAttributes);
+		// <2> 创建结果数组
 		List<String> missingProperties = new ArrayList<>();
 		List<String> nonMatchingProperties = new ArrayList<>();
+		// <3> 收集是否不匹配的信息，到 missingProperties、nonMatchingProperties 中
 		spec.collectProperties(resolver, missingProperties, nonMatchingProperties);
+		// <4.1> 如果有属性缺失，则返回不匹配
 		if (!missingProperties.isEmpty()) {
 			return ConditionOutcome.noMatch(
 					ConditionMessage.forCondition(ConditionalOnProperty.class, spec)
 							.didNotFind("property", "properties")
 							.items(Style.QUOTE, missingProperties));
 		}
+		// <4.2> 如果有属性不匹配，则返回不匹配
 		if (!nonMatchingProperties.isEmpty()) {
 			return ConditionOutcome.noMatch(
 					ConditionMessage.forCondition(ConditionalOnProperty.class, spec)
@@ -106,8 +119,8 @@ class OnPropertyCondition extends SpringBootCondition {
 									"different value in properties")
 							.items(Style.QUOTE, nonMatchingProperties));
 		}
-		return ConditionOutcome.match(ConditionMessage
-				.forCondition(ConditionalOnProperty.class, spec).because("matched"));
+		// <4.3> 返回匹配
+		return ConditionOutcome.match(ConditionMessage.forCondition(ConditionalOnProperty.class, spec).because("matched"));
 	}
 
 	private static class Spec {

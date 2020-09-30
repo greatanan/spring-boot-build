@@ -24,11 +24,14 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @see ConditionMessage
+ *
+ * 匹配结果
  */
 public class ConditionOutcome {
 
 	private final boolean match;
 
+	/** 匹配消息 */
 	private final ConditionMessage message;
 
 	/**

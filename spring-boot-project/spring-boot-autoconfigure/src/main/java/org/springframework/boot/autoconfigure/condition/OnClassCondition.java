@@ -48,6 +48,10 @@ import org.springframework.util.MultiValueMap;
  * @see ConditionalOnClass
  * @see ConditionalOnMissingClass
  */
+
+/**
+ * 给 @ConditionalOnClass、@ConditionalOnMissingClass 使用的 Condition 实现类。
+ */
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class OnClassCondition extends SpringBootCondition
 		implements AutoConfigurationImportFilter, BeanFactoryAware, BeanClassLoaderAware {
@@ -57,12 +61,14 @@ class OnClassCondition extends SpringBootCondition
 	private ClassLoader beanClassLoader;
 
 	@Override
-	public boolean[] match(String[] autoConfigurationClasses,
-						   AutoConfigurationMetadata autoConfigurationMetadata) {
+	public boolean[] match(String[] autoConfigurationClasses, AutoConfigurationMetadata autoConfigurationMetadata) {
+		// <1> 获得 ConditionEvaluationReport 对象
 		ConditionEvaluationReport report = getConditionEvaluationReport();
-		ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses,
-				autoConfigurationMetadata);
+		// <2> 执行批量的匹配，并返回匹配结果
+		ConditionOutcome[] outcomes = getOutcomes(autoConfigurationClasses, autoConfigurationMetadata);
+		// <3.1> 创建 match 数组
 		boolean[] match = new boolean[outcomes.length];
+		// <3.2> 遍历 outcomes 结果数组
 		for (int i = 0; i < outcomes.length; i++) {
 			match[i] = (outcomes[i] == null || outcomes[i].isMatch());
 			if (!match[i] && outcomes[i] != null) {
@@ -73,6 +79,7 @@ class OnClassCondition extends SpringBootCondition
 				}
 			}
 		}
+		// <3.3> 返回 match 数组
 		return match;
 	}
 
@@ -196,6 +203,9 @@ class OnClassCondition extends SpringBootCondition
 
 	private enum MatchType {
 
+		/**
+		 * 指定类存在
+		 */
 		PRESENT {
 			@Override
 			public boolean matches(String className, ClassLoader classLoader) {
@@ -204,6 +214,9 @@ class OnClassCondition extends SpringBootCondition
 
 		},
 
+		/**
+		 * 指定类不存在
+		 */
 		MISSING {
 			@Override
 			public boolean matches(String className, ClassLoader classLoader) {
@@ -212,6 +225,9 @@ class OnClassCondition extends SpringBootCondition
 
 		};
 
+		/**
+		 * 判断是否存在
+		 */
 		private static boolean isPresent(String className, ClassLoader classLoader) {
 			if (classLoader == null) {
 				classLoader = ClassUtils.getDefaultClassLoader();
@@ -224,6 +240,9 @@ class OnClassCondition extends SpringBootCondition
 			}
 		}
 
+		/**
+		 * 加载指定类
+		 */
 		private static Class<?> forName(String className, ClassLoader classLoader)
 				throws ClassNotFoundException {
 			if (classLoader != null) {
@@ -310,8 +329,7 @@ class OnClassCondition extends SpringBootCondition
 
 		private ConditionOutcome getOutcome(Set<String> candidates) {
 			try {
-				List<String> missing = getMatches(candidates, MatchType.MISSING,
-						this.beanClassLoader);
+				List<String> missing = getMatches(candidates, MatchType.MISSING, this.beanClassLoader);
 				if (!missing.isEmpty()) {
 					return ConditionOutcome.noMatch(
 							ConditionMessage.forCondition(ConditionalOnClass.class)

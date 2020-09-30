@@ -91,6 +91,18 @@ import org.springframework.core.env.Environment;
  * @author Phillip Webb
  * @since 1.1.0
  */
+
+/**
+ * 通过其两个属性name以及havingValue来实现的，其中name用来从application.properties中读取某个属性值。
+ * 如果该值为空，则返回false;
+ * 如果值不为空，则将该值与havingValue指定的值进行比较，如果一样则返回true;否则返回false。
+ * 如果返回值为false，则该configuration不生效；为true则生效。
+ *
+ * 作者：wyatt_plus
+ * 链接：https://www.jianshu.com/p/68a75c093023    具体使用可以参考这篇文章
+ * 来源：简书
+ * 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
@@ -102,7 +114,7 @@ public @interface ConditionalOnProperty {
 	 *
 	 * @return the names
 	 */
-	String[] value() default {};
+	String[] value() default {};  // 数组，获取对应property名称的值，与name不可同时使用
 
 	/**
 	 * A prefix that should be applied to each property. The prefix automatically ends
@@ -110,7 +122,7 @@ public @interface ConditionalOnProperty {
 	 *
 	 * @return the prefix
 	 */
-	String prefix() default "";
+	String prefix() default ""; // property名称的前缀，可有可无
 
 	/**
 	 * The name of the properties to test. If a prefix has been defined, it is applied to
@@ -123,7 +135,7 @@ public @interface ConditionalOnProperty {
 	 *
 	 * @return the names
 	 */
-	String[] name() default {};
+	String[] name() default {};  // 数组，property完整名称或部分名称（可与prefix组合使用，组成完整的property名称），与value不可同时使用
 
 	/**
 	 * The string representation of the expected value for the properties. If not
@@ -131,7 +143,7 @@ public @interface ConditionalOnProperty {
 	 *
 	 * @return the expected value
 	 */
-	String havingValue() default "";
+	String havingValue() default ""; // 可与name组合使用，比较获取到的属性值与havingValue给定的值是否相同，相同才加载配置
 
 	/**
 	 * Specify if the condition should match if the property is not set. Defaults to
@@ -139,6 +151,6 @@ public @interface ConditionalOnProperty {
 	 *
 	 * @return if should match if the property is missing
 	 */
-	boolean matchIfMissing() default false;
+	boolean matchIfMissing() default false; // 缺少该property时是否可以加载。如果为true，没有该property也会正常加载；反之报错
 
 }

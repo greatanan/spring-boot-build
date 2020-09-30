@@ -114,7 +114,7 @@ final class BeanTypeRegistry implements SmartInitializingSingleton {
 	 * object type (including subclasses), or an empty set if none
 	 */
 	Set<String> getNamesForType(Class<?> type) {
-		updateTypesIfNecessary();
+		updateTypesIfNecessary(); // 初始化 beanTypes
 		return this.beanTypes.entrySet().stream()
 				.filter((entry) -> entry.getValue() != null
 						&& type.isAssignableFrom(entry.getValue()))
