@@ -7,11 +7,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
-
 /**
  * @Description:
  * @Author: chuanlei.guo
- * @Date: 2020-05-24
+ * @Date: 2020/11/20
  */
 @SpringBootApplication
 public class MySpringBootApplication {
