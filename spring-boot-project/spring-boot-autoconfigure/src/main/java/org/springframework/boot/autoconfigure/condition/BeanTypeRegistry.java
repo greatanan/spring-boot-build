@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure.condition;
 
 import java.lang.annotation.Annotation;
@@ -114,7 +98,7 @@ final class BeanTypeRegistry implements SmartInitializingSingleton {
 	 * object type (including subclasses), or an empty set if none
 	 */
 	Set<String> getNamesForType(Class<?> type) {
-		updateTypesIfNecessary(); // 初始化 beanTypes
+		updateTypesIfNecessary(); // 初始化 beanTypes ...... 无语 原来第一次进来这个getNamesForType方法的时候 this.beanTypes这个map是空的 现在才是开始往里面填充数据 后面才可以从里面拿数据.....
 		return this.beanTypes.entrySet().stream()
 				.filter((entry) -> entry.getValue() != null
 						&& type.isAssignableFrom(entry.getValue()))
@@ -207,20 +191,19 @@ final class BeanTypeRegistry implements SmartInitializingSingleton {
 	}
 
 	private void updateTypesIfNecessary() {
+		// 无语 原来这里是调用DefaultListableBeanFactory里面的getBeanNamesIterator方法 而这个方法的作用是把目前为止的bean定义名字都拿到 以及包括manualSingletonNames中的名字
 		Iterator<String> names = this.beanFactory.getBeanNamesIterator();
 		while (names.hasNext()) {
 			String name = names.next();
 			if (!this.beanTypes.containsKey(name)) {
+				// 添加到beanTypes中
 				addBeanType(name);
 			} else {
-				if (!this.beanFactory.isAlias(name)
-						&& !this.beanFactory.containsSingleton(name)) {
+				if (!this.beanFactory.isAlias(name) && !this.beanFactory.containsSingleton(name)) {
 					RootBeanDefinition beanDefinition = getBeanDefinition(name);
 					if (beanDefinition != null) {
-						RootBeanDefinition existingDefinition = this.beanDefinitions
-								.put(name, beanDefinition);
-						if (existingDefinition != null
-								&& !beanDefinition.equals(existingDefinition)) {
+						RootBeanDefinition existingDefinition = this.beanDefinitions.put(name, beanDefinition);
+						if (existingDefinition != null && !beanDefinition.equals(existingDefinition)) {
 							addBeanTypeForNonAliasDefinition(name, beanDefinition);
 						}
 					}

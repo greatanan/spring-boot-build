@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot;
 
 import java.io.IOException;
@@ -53,19 +37,29 @@ import org.springframework.util.StringUtils;
  *
  * @author Phillip Webb
  * @see #setBeanNameGenerator(BeanNameGenerator)
+ *
+ *
+ * BeanDefinition 加载器（Loader），负责 Spring Boot 中，读取 BeanDefinition
+ *
  */
 class BeanDefinitionLoader {
 
+	// 来源的数组
 	private final Object[] sources;
 
+	// 注解的 BeanDefinition 读取器
 	private final AnnotatedBeanDefinitionReader annotatedReader;
 
+	// XML 的 BeanDefinition 读取器
 	private final XmlBeanDefinitionReader xmlReader;
 
+	// Groovy 的 BeanDefinition 读取器
 	private BeanDefinitionReader groovyReader;
 
+	// Classpath 的 BeanDefinition 扫描器
 	private final ClassPathBeanDefinitionScanner scanner;
 
+	// 资源加载器
 	private ResourceLoader resourceLoader;
 
 	/**
@@ -81,17 +75,22 @@ class BeanDefinitionLoader {
 		Assert.notEmpty(sources, "Sources must not be empty");
 
 		this.sources = sources;
-		//注解形式的Bean定义读取器 比如：@Configuration @Bean @Component @Controller @Service等等
+
+		// 注解形式的Bean定义读取器 比如：@Configuration @Bean @Component @Controller @Service等等
 		this.annotatedReader = new AnnotatedBeanDefinitionReader(registry);
-		//XML形式的Bean定义读取器
+
+		// XML形式的Bean定义读取器
 		this.xmlReader = new XmlBeanDefinitionReader(registry);
+
 		if (isGroovyPresent()) {
 			this.groovyReader = new GroovyBeanDefinitionReader(registry);
 		}
-		//类路径扫描器
+		// 类路径扫描器
 		this.scanner = new ClassPathBeanDefinitionScanner(registry);
-		//扫描器添加排除过滤器
+
+		// 扫描器添加排除过滤器
 		this.scanner.addExcludeFilter(new ClassExcludeFilter(sources));
+
 	}
 
 	/**
@@ -134,6 +133,7 @@ class BeanDefinitionLoader {
 	 */
 	public int load() {
 		int count = 0;
+		//  遍历 sources 数组，逐个加载
 		for (Object source : this.sources) {
 			count += load(source);
 		}
@@ -141,36 +141,39 @@ class BeanDefinitionLoader {
 	}
 
 	private int load(Object source) {
+
 		Assert.notNull(source, "Source must not be null");
-		// 从Class加载
+		// 如果是 Class 类型，则使用 AnnotatedBeanDefinitionReader 执行加载
 		if (source instanceof Class<?>) {
 			return load((Class<?>) source);
 		}
-		// 从Resource加载
+		// 如果是 Resource 类型，则使用 XmlBeanDefinitionReader 执行加载
 		if (source instanceof Resource) {
 			return load((Resource) source);
 		}
-		// 从Package加载
+		// 如果是 Package 类型，则使用 ClassPathBeanDefinitionScanner 执行加载
 		if (source instanceof Package) {
 			return load((Package) source);
 		}
-		// 从 CharSequence 加载 ？？？
+		// 如果是 CharSequence 类型，则各种尝试去加载
 		if (source instanceof CharSequence) {
 			return load((CharSequence) source);
 		}
+		// 无法处理的类型，抛出 IllegalArgumentException 异常
 		throw new IllegalArgumentException("Invalid source type " + source.getClass());
 	}
 
 	private int load(Class<?> source) {
-		if (isGroovyPresent()
-				&& GroovyBeanDefinitionSource.class.isAssignableFrom(source)) {
+		// Groovy 相关，暂时忽略
+		if (isGroovyPresent() && GroovyBeanDefinitionSource.class.isAssignableFrom(source)) {
 			// Any GroovyLoaders added in beans{} DSL can contribute beans here
-			GroovyBeanDefinitionSource loader = BeanUtils.instantiateClass(source,
-					GroovyBeanDefinitionSource.class);
+			GroovyBeanDefinitionSource loader = BeanUtils.instantiateClass(source, GroovyBeanDefinitionSource.class);
 			load(loader);
 		}
-		if (isComponent(source)) {
+		// 如果是 Component ，则执行注册
+		if (isComponent(source)) { // 判断是否为 Component
 			//将 启动类的 BeanDefinition注册进 beanDefinitionMap
+			// 调用AnnotatedBeanDefinitionReader#register方法 执行注册
 			this.annotatedReader.register(source);
 			return 1;
 		}
@@ -187,15 +190,16 @@ class BeanDefinitionLoader {
 	private int load(Resource source) {
 		if (source.getFilename().endsWith(".groovy")) {
 			if (this.groovyReader == null) {
-				throw new BeanDefinitionStoreException(
-						"Cannot load Groovy beans without Groovy on classpath");
+				throw new BeanDefinitionStoreException("Cannot load Groovy beans without Groovy on classpath");
 			}
 			return this.groovyReader.loadBeanDefinitions(source);
 		}
+		// 使用 XmlBeanDefinitionReader 加载 BeanDefinition
 		return this.xmlReader.loadBeanDefinitions(source);
 	}
 
 	private int load(Package source) {
+		// ClassPathBeanDefinitionScanner#scan
 		return this.scanner.scan(source.getName());
 	}
 
@@ -294,6 +298,7 @@ class BeanDefinitionLoader {
 	private boolean isComponent(Class<?> type) {
 		// This has to be a bit of a guess. The only way to be sure that this type is
 		// eligible is to make a bean definition out of it and try to instantiate it.
+		// 如果有 @Component 注解，则返回 true
 		if (AnnotationUtils.findAnnotation(type, Component.class) != null) {
 			return true;
 		}

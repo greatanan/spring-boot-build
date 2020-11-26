@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure;
 
 import java.lang.annotation.Documented;
@@ -47,11 +31,9 @@ import org.springframework.core.annotation.AliasFor;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-//@SpringBootConfiguration只是表明是一个配置类
-@SpringBootConfiguration//Spring Boot的配置类；标注在某个类上，表示一个类提供了Spring Boot应用程序
-//@EnableAutoConfiguration核心注解
-@EnableAutoConfiguration//告诉SpringBoot开启自动配置功能，这样自动配置才能生效
-@ComponentScan(excludeFilters = {//就是自动扫描并加载符合条件的组件
+@SpringBootConfiguration // Spring Boot的配置类；标注在某个类上，表示一个类提供了Spring Boot应用程序, @SpringBootConfiguration只是表明是一个配置类
+@EnableAutoConfiguration // @EnableAutoConfiguration核心注解 告诉SpringBoot开启自动配置功能，这样自动配置才能生效
+@ComponentScan(excludeFilters = { // 就是自动扫描并加载符合条件的组件
 		@Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
 		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class)})
 public @interface SpringBootApplication {

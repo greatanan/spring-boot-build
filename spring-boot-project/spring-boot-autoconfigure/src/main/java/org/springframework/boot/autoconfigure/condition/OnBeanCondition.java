@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure.condition;
 
 import java.lang.annotation.Annotation;
@@ -73,15 +57,16 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 
 	/**
 	 * 获得判断结果的方法，ConditionOutcome类中存着boolean类型的结果
+	 * @ConditionalOnBean、@ConditionalOnMissingBean和@ConditionalOnSingleCandidate都是使用这个条件类
 	 */
 	@Override
 	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
 
-		//返回一个新的ConditionMessage
+		// 返回一个新的ConditionMessage
 		ConditionMessage matchMessage = ConditionMessage.empty();
 
-		//这是metadata会调用isAnnotated方法判断当前标注的注解是不是ConditionalOnMissingBean
-		//其实@ConditionalOnBean、@ConditionalOnMissingBean和@ConditionalOnSingleCandidate都是使用这个条件类，所以这里做判断
+		// 这是metadata会调用isAnnotated方法判断当前标注的注解是不是ConditionalOnMissingBean
+		// 其实@ConditionalOnBean、@ConditionalOnMissingBean和@ConditionalOnSingleCandidate都是使用这个条件类，所以这里做判断
 		if (metadata.isAnnotated(ConditionalOnBean.class.getName())) {
 			BeanSearchSpec spec = new BeanSearchSpec(context, metadata, ConditionalOnBean.class);
 			MatchResult matchResult = getMatchingBeans(context, spec);// 获取匹配结果
@@ -115,15 +100,19 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 
 		// 如果当前注入的bean是@ConditionalOnMissingBean
 		if (metadata.isAnnotated(ConditionalOnMissingBean.class.getName())) {
+
 			// 返回一个spec（说明），这里的spec规定了搜索的内容，比如搜索策略、需要搜索的类名......
+			// 相当于从内部类中将标注@ConditionalOnMissingBean注解时的属性都取出来
 			BeanSearchSpec spec = new BeanSearchSpec(context, metadata, ConditionalOnMissingBean.class);
-			//主要的搜索实现在这个方法里
+
+			// 主要的搜索实现在这个方法里 最后返回一个list
 			MatchResult matchResult = getMatchingBeans(context, spec);
+
+			// 判断搜索出来的结果
 			if (matchResult.isAnyMatched()) {
 				String reason = createOnMissingBeanNoMatchReason(matchResult);
-				return ConditionOutcome.noMatch(ConditionMessage
-						.forCondition(ConditionalOnMissingBean.class, spec)
-						.because(reason));
+				// 返回ConditionOutcome对象noMatch方法，表示不匹配
+				return ConditionOutcome.noMatch(ConditionMessage.forCondition(ConditionalOnMissingBean.class, spec).because(reason));
 			}
 			matchMessage = matchMessage.andCondition(ConditionalOnMissingBean.class, spec).didNotFind("any beans").atAll();
 		}
@@ -186,7 +175,11 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 	}
 
 	private MatchResult getMatchingBeans(ConditionContext context, BeanSearchSpec beans) {
+
+		// 获得当前bean工厂
 		ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();
+
+		// 判断当前的搜索策略是否是PARENTS或者ANCESTORS，默认是ALL
 		if (beans.getStrategy() == SearchStrategy.ANCESTORS) {
 			BeanFactory parent = beanFactory.getParentBeanFactory();
 			Assert.isInstanceOf(ConfigurableListableBeanFactory.class, parent,
@@ -194,11 +187,13 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 			beanFactory = (ConfigurableListableBeanFactory) parent;
 		}
 		MatchResult matchResult = new MatchResult();
+		// 如果当前搜索策略等于CURRENT，为true
 		boolean considerHierarchy = beans.getStrategy() != SearchStrategy.CURRENT;
 		List<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(beans.getIgnoredTypes(), beanFactory, context, considerHierarchy);
 
 		for (String type : beans.getTypes()) { // type是我们需要搜索的类的类型
 
+			//根据类型获取bean的name
 			Collection<String> typeMatches = getBeanNamesForType(beanFactory, type, context.getClassLoader(), considerHierarchy);
 
 			typeMatches.removeAll(beansIgnoredByType);
@@ -354,8 +349,8 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 		BeanSearchSpec(ConditionContext context, AnnotatedTypeMetadata metadata,
 					   Class<?> annotationType) {
 			this.annotationType = annotationType;
-			MultiValueMap<String, Object> attributes = metadata
-					.getAllAnnotationAttributes(annotationType.getName(), true);
+			MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(annotationType.getName(), true);
+			// //将attributes这个map中的数据放到对应的list成员变量中
 			collect(attributes, "name", this.names);
 			collect(attributes, "value", this.types);
 			collect(attributes, "type", this.types);

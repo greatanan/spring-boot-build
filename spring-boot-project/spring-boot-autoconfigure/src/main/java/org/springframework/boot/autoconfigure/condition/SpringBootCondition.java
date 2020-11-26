@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure.condition;
 
 import org.apache.commons.logging.Log;
@@ -34,9 +18,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Phillip Webb
  * @author Greg Turnquist
- */
-
-/**
+ *
  * SpringBootCondition是 Spring Boot 实现 Condition 的抽象类，且是 Spring Boot 所有 Condition 实现类的基类。
  */
 public abstract class SpringBootCondition implements Condition {
@@ -45,16 +27,18 @@ public abstract class SpringBootCondition implements Condition {
 
 	@Override
 	public final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-		// <1> 获得注解的是方法名还是类名
+
+		// 获得注解的是方法名还是类名
 		String classOrMethodName = getClassOrMethodName(metadata);
 		try {
-			// <2> 条件匹配结果   关键代码：这里就会判断出结果
+			// 条件匹配结果   关键代码：这里就会判断出结果
 			ConditionOutcome outcome = getMatchOutcome(context, metadata);
-			// <3> 打印结果
+			// 打印结果
 			logOutcome(classOrMethodName, outcome);
-			// <4> 记录
+			// 记录
 			recordEvaluation(context, classOrMethodName, outcome);
-			// <5> 返回是否匹配
+
+			// 返回是否匹配
 			return outcome.isMatch();
 
 		} catch (NoClassDefFoundError ex) {

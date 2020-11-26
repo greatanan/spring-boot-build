@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure;
 
 import java.util.ArrayList;
@@ -65,9 +49,8 @@ import org.springframework.util.StringUtils;
  * @author Madhura Bhave
  * @see EnableAutoConfiguration
  * @since 1.3.0
- */
-
-/**
+ *
+ *
  * 真正实现自动配置的核心类
  */
 public class AutoConfigurationImportSelector
@@ -89,7 +72,7 @@ public class AutoConfigurationImportSelector
 
 	private ResourceLoader resourceLoader;
 
-	//自动装配
+	// 自动装配
 	@Override
 	public String[] selectImports(AnnotationMetadata annotationMetadata) {
 
@@ -177,11 +160,13 @@ public class AutoConfigurationImportSelector
 	 *                   attributes}
 	 * @return a list of candidate configurations
 	 *
+	 * 获得符合条件的配置类的数组
 	 */
 	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
 
-		//SpringFactoriesLoader类里面的属性： public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
-		//而且从SpringFactoriesLoader类里面可以看出来spring.factories文件不是唯一的
+		// SpringFactoriesLoader类里面的属性： public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+		// 加载指定类型 EnableAutoConfiguration 对应的，在 `META-INF/spring.factories` 里的类名的数组
+		// 而且从SpringFactoriesLoader类里面可以看出来spring.factories文件不是唯一的
 		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
 
 		Assert.notEmpty(configurations,

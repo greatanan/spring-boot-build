@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure;
 
 import java.lang.annotation.Documented;
@@ -71,12 +55,15 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
  * @see ConditionalOnClass
  * @see AutoConfigureAfter
  * @see SpringBootApplication
+ *
+ *
+ *  @EnableAutoConfiguration用于开启自动配置功能，是 spring-boot-autoconfigure 项目最核心的注解
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@AutoConfigurationPackage //自动配置包  表示包含这个注解的类的包以及该包的子包应该被注册，也就是应该被扫描进来
+@AutoConfigurationPackage //自动配置包  表示包含这个注解的类的包以及该包的子包应该被注册，也就是应该被扫描进来, 主要功能自动配置包，它会获取主程序类所在的包路径，并将包路径（包括子包）下的所有组件注册到 Spring IOC 容器中
 @Import(AutoConfigurationImportSelector.class) //借助@import,扫描并实例化满足条件的自动配置的bean，然后加载到IOC容器中
 public @interface EnableAutoConfiguration {
 

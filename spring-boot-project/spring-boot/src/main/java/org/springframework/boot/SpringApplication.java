@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot;
 
 import java.lang.reflect.Constructor;
@@ -253,7 +237,7 @@ public class SpringApplication {
 	 * @see #SpringApplication(ResourceLoader, Class...)
 	 * @see #setSources(Set)
 	 */
-	//我们经常写的SpringApplication.run(ApplicationConfiguration.class,args);就是调用的这个方法
+	// 我们经常写的SpringApplication.run(ApplicationConfiguration.class,args);就是调用的这个方法
 	public SpringApplication(Class<?>... primarySources) {
 		this(null, primarySources);
 	}
@@ -378,8 +362,10 @@ public class SpringApplication {
 			exceptionReporters = getSpringFactoriesInstances(
 					SpringBootExceptionReporter.class,
 					new Class[]{ConfigurableApplicationContext.class}, context);
+
 			//4、刷新应用上下文前的准备阶段
 			prepareContext(context, environment, listeners, applicationArguments, printedBanner);
+
 			//5、刷新应用上下文
 			refreshContext(context);
 			//刷新应用上下文后的扩展接口
@@ -444,8 +430,7 @@ public class SpringApplication {
 
 		// Add boot specific singleton beans
 		//将main函数中的args参数封装成单例Bean，注册进容器
-		context.getBeanFactory().registerSingleton("springApplicationArguments",
-				applicationArguments);
+		context.getBeanFactory().registerSingleton("springApplicationArguments", applicationArguments);
 		//将 printedBanner 也封装成单例，注册进容器
 		if (printedBanner != null) {
 			context.getBeanFactory().registerSingleton("springBootBanner", printedBanner);
@@ -454,8 +439,10 @@ public class SpringApplication {
 		// Load the sources
 		Set<Object> sources = getAllSources();
 		Assert.notEmpty(sources, "Sources must not be empty");
-		//加载我们的启动类，将启动类注入容器
+
+		// 加载我们的启动类
 		load(context, sources.toArray(new Object[0]));
+
 		//发布容器已加载事件
 		listeners.contextLoaded(context);
 	}
@@ -787,13 +774,15 @@ public class SpringApplication {
 	 * @param sources the sources to load
 	 */
 	protected void load(ApplicationContext context, Object[] sources) {
+
 		if (logger.isDebugEnabled()) {
-			logger.debug(
-					"Loading source " + StringUtils.arrayToCommaDelimitedString(sources));
+			logger.debug("Loading source " + StringUtils.arrayToCommaDelimitedString(sources));
 		}
-		//创建 BeanDefinitionLoader
-		BeanDefinitionLoader loader = createBeanDefinitionLoader(
-				getBeanDefinitionRegistry(context), sources);
+
+		// 创建 BeanDefinitionLoader对象
+		BeanDefinitionLoader loader = createBeanDefinitionLoader(getBeanDefinitionRegistry(context), sources);
+
+		// 为BeanDefinitionLoader对象设置属性
 		if (this.beanNameGenerator != null) {
 			loader.setBeanNameGenerator(this.beanNameGenerator);
 		}
@@ -803,6 +792,8 @@ public class SpringApplication {
 		if (this.environment != null) {
 			loader.setEnvironment(this.environment);
 		}
+
+		// 执行 BeanDefinition 加载
 		loader.load();
 	}
 
