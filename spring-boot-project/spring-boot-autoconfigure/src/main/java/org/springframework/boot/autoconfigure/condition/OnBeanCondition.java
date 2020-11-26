@@ -193,7 +193,7 @@ class OnBeanCondition extends SpringBootCondition implements ConfigurationCondit
 
 		for (String type : beans.getTypes()) { // type是我们需要搜索的类的类型
 
-			//根据类型获取bean的name
+			// 根据类型获取bean的name
 			Collection<String> typeMatches = getBeanNamesForType(beanFactory, type, context.getClassLoader(), considerHierarchy);
 
 			typeMatches.removeAll(beansIgnoredByType);

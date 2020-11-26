@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ConditionConfig {
 
-
 	@Bean(name = "notebookPC")
 	public Computer computer1() {
 		return new Computer("笔记本电脑");

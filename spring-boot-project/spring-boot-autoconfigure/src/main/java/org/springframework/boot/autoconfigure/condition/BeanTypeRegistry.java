@@ -191,7 +191,7 @@ final class BeanTypeRegistry implements SmartInitializingSingleton {
 	}
 
 	private void updateTypesIfNecessary() {
-		// 无语 原来这里是调用DefaultListableBeanFactory里面的getBeanNamesIterator方法 而这个方法的作用是把目前为止的bean定义名字都拿到 以及包括manualSingletonNames中的名字
+		// 调用DefaultListableBeanFactory里面的getBeanNamesIterator方法 而这个方法的作用是把目前为止的bean定义名字都拿到 以及包括manualSingletonNames中的名字
 		Iterator<String> names = this.beanFactory.getBeanNamesIterator();
 		while (names.hasNext()) {
 			String name = names.next();
