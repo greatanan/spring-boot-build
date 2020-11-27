@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
  * reading {@link AutoConfigureOrder}, {@link AutoConfigureBefore} and
  * {@link AutoConfigureAfter} annotations (without loading classes).
  *
- * @author Phillip Webb
+ * @author Phillip Webb   这个就是为springBoot的自动配置类进行排序的
  */
 class AutoConfigurationSorter {
 
@@ -51,25 +51,30 @@ class AutoConfigurationSorter {
 		this.autoConfigurationMetadata = autoConfigurationMetadata;
 	}
 
-	public List<String> getInPriorityOrder(Collection<String> classNames) {
-		AutoConfigurationClasses classes = new AutoConfigurationClasses(
-				this.metadataReaderFactory, this.autoConfigurationMetadata, classNames);
+	public List<String> getInPriorityOrder(Collection<String> classNames) { // 入参是自动配置类的名字集合
+		AutoConfigurationClasses classes = new AutoConfigurationClasses(this.metadataReaderFactory, this.autoConfigurationMetadata, classNames); // 根据自动配置类的名字换取 AutoConfigurationClass
 		List<String> orderedClassNames = new ArrayList<>(classNames);
-		// Initially sort alphabetically
+		// Initially sort alphabetically 首先根据ASCII来进行排序
 		Collections.sort(orderedClassNames);
-		// Then sort by order
+		// Then sort by order  再根据Order来进行排序
 		orderedClassNames.sort((o1, o2) -> {
 			int i1 = classes.get(o1).getOrder();
 			int i2 = classes.get(o2).getOrder();
 			return Integer.compare(i1, i2);
 		});
-		// Then respect @AutoConfigureBefore @AutoConfigureAfter
+		// Then respect @AutoConfigureBefore @AutoConfigureAfter 根据@AutoConfigureBefore @AutoConfigureAfter注解进行排序
 		orderedClassNames = sortByAnnotation(classes, orderedClassNames);
 		return orderedClassNames;
 	}
 
-	private List<String> sortByAnnotation(AutoConfigurationClasses classes,
-										  List<String> classNames) {
+	/**
+	 * 根据注解进行排序
+	 *
+	 * @param classes
+	 * @param classNames
+	 * @return
+	 */
+	private List<String> sortByAnnotation(AutoConfigurationClasses classes, List<String> classNames) {
 		List<String> toSort = new ArrayList<>(classNames);
 		toSort.addAll(classes.getAllNames());
 		Set<String> sorted = new LinkedHashSet<>();
@@ -88,9 +93,9 @@ class AutoConfigurationSorter {
 			current = toSort.remove(0);
 		}
 		processing.add(current);
+		// my: @AutoConfigureBefore和@AutoConfigureAfter注解都是在这里进行处理的
 		for (String after : classes.getClassesRequestedAfter(current)) {
-			Assert.state(!processing.contains(after),
-					"AutoConfigure cycle detected between " + current + " and " + after);
+			Assert.state(!processing.contains(after), "AutoConfigure cycle detected between " + current + " and " + after);
 			if (!sorted.contains(after) && toSort.contains(after)) {
 				doSortByAfterAnnotation(classes, toSort, sorted, processing, after);
 			}

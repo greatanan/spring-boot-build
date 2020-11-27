@@ -448,6 +448,7 @@ public class SpringApplication {
 	}
 
 	private void refreshContext(ConfigurableApplicationContext context) {
+		// 刷新容器
 		refresh(context);
 		if (this.registerShutdownHook) {
 			try {

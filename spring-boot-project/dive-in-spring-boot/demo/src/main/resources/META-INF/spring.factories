@@ -1,1 +1,4 @@
 #org.springframework.context.ApplicationContextInitializer=org.springframework.boot.demo.common.MyApplicationContextInitializer
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.greatanan.demo.configuration.ConfigureOrder.B_SecondConfiguration,\
+  com.greatanan.demo.configuration.ConfigureOrder.FirstConfiguration

@@ -35,6 +35,7 @@ import org.springframework.core.annotation.AliasFor;
 @EnableAutoConfiguration // @EnableAutoConfiguration核心注解 告诉SpringBoot开启自动配置功能，这样自动配置才能生效
 @ComponentScan(excludeFilters = { // 就是自动扫描并加载符合条件的组件
 		@Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
+		// 这个AutoConfigurationExcludeFilter作用是排除我们在spring.factories文件配置的自动配置类
 		@Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class)})
 public @interface SpringBootApplication {
 

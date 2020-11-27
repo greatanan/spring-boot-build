@@ -414,7 +414,7 @@ public class AutoConfigurationImportSelector
 
 		@Override
 		public Iterable<Entry> selectImports() {
-			return sortAutoConfigurations().stream()
+			return sortAutoConfigurations().stream()  // sortAutoConfigurations()方法是为配置类进行排序 注意这里排序的是AutoConfiguration 可以暂时理解是配置在spring.factories文件中的自动配置类
 					.map((importClassName) -> new Entry(this.entries.get(importClassName),
 							importClassName))
 					.collect(Collectors.toList());
@@ -425,10 +425,8 @@ public class AutoConfigurationImportSelector
 			if (this.entries.size() <= 1) {
 				return autoConfigurations;
 			}
-			AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader
-					.loadMetadata(this.beanClassLoader);
-			return new AutoConfigurationSorter(getMetadataReaderFactory(),
-					autoConfigurationMetadata).getInPriorityOrder(autoConfigurations);
+			AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader.loadMetadata(this.beanClassLoader);
+			return new AutoConfigurationSorter(getMetadataReaderFactory(), autoConfigurationMetadata).getInPriorityOrder(autoConfigurations); // my: 排序方法
 		}
 
 		private MetadataReaderFactory getMetadataReaderFactory() {

@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure;
 
 import java.io.IOException;
@@ -43,26 +27,25 @@ public class AutoConfigurationExcludeFilter implements TypeFilter, BeanClassLoad
 		this.beanClassLoader = beanClassLoader;
 	}
 
+	/**
+	 * 在这个方法ClassPathScanningCandidateComponentProvider#isCandidateComponent(MetadataReader metadataReader)里面会判断是不是自动配置类,如果是就不会注册bd了
+	 */
 	@Override
-	public boolean match(MetadataReader metadataReader,
-						 MetadataReaderFactory metadataReaderFactory) throws IOException {
+	public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
 		return isConfiguration(metadataReader) && isAutoConfiguration(metadataReader);
 	}
 
 	private boolean isConfiguration(MetadataReader metadataReader) {
-		return metadataReader.getAnnotationMetadata()
-				.isAnnotated(Configuration.class.getName());
+		return metadataReader.getAnnotationMetadata().isAnnotated(Configuration.class.getName());
 	}
 
 	private boolean isAutoConfiguration(MetadataReader metadataReader) {
-		return getAutoConfigurations()
-				.contains(metadataReader.getClassMetadata().getClassName());
+		return getAutoConfigurations().contains(metadataReader.getClassMetadata().getClassName());
 	}
 
 	protected List<String> getAutoConfigurations() {
 		if (this.autoConfigurations == null) {
-			this.autoConfigurations = SpringFactoriesLoader.loadFactoryNames(
-					EnableAutoConfiguration.class, this.beanClassLoader);
+			this.autoConfigurations = SpringFactoriesLoader.loadFactoryNames(EnableAutoConfiguration.class, this.beanClassLoader);
 		}
 		return this.autoConfigurations;
 	}
