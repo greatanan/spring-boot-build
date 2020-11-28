@@ -21,6 +21,21 @@ public class ControllerExceptionHandler {
 	private static final Logger log = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
 	/**
+	 * 算术异常
+	 *
+	 * @param exception 异常
+	 * @return 异常结果
+	 */
+	@ExceptionHandler(value = ArithmeticException.class)
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	public String handleArithmeticExceptionException(ArithmeticException exception) {
+		log.error(exception.getMessage(), exception);
+		return "被统一异常处理中的handleArithmeticExceptionException方法拦截了";
+	}
+
+
+	/**
 	 * 未定义异常
 	 *
 	 * @param exception 异常
