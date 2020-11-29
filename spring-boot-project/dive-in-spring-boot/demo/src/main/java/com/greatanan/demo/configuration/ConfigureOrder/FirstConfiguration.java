@@ -1,6 +1,7 @@
 package com.greatanan.demo.configuration.ConfigureOrder;
 
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
  * @date: 2020/11/27
  */
 @AutoConfigureBefore(B_SecondConfiguration.class)
+@ComponentScan("com.greatanan.autoConfiguration")
 @Configuration
 public class FirstConfiguration {
 

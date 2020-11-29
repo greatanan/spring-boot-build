@@ -52,15 +52,18 @@ import org.springframework.util.StringUtils;
  *
  *
  * 真正实现自动配置的核心类
+ * 这类类是在注解{@link EnableAutoConfiguration} 注册进来的
+ * 这个类实现了接口 DeferredImportSelector  而这个接口继承spring中的接口 ImportSelector
+ * 既然是ImportSelector 就不用接着往下说了吧
+ *
  */
-public class AutoConfigurationImportSelector
-		implements DeferredImportSelector, BeanClassLoaderAware, ResourceLoaderAware,
+public class AutoConfigurationImportSelector implements DeferredImportSelector,
+		BeanClassLoaderAware, ResourceLoaderAware,
 		BeanFactoryAware, EnvironmentAware, Ordered {
 
 	private static final String[] NO_IMPORTS = {};
 
-	private static final Log logger = LogFactory
-			.getLog(AutoConfigurationImportSelector.class);
+	private static final Log logger = LogFactory.getLog(AutoConfigurationImportSelector.class);
 
 	private static final String PROPERTY_NAME_AUTOCONFIGURE_EXCLUDE = "spring.autoconfigure.exclude";
 
@@ -76,31 +79,31 @@ public class AutoConfigurationImportSelector
 	@Override
 	public String[] selectImports(AnnotationMetadata annotationMetadata) {
 
-		if (!isEnabled(annotationMetadata)) {
+		if (!isEnabled(annotationMetadata)) { // 判断是否开启自动配置
 			return NO_IMPORTS;
 		}
 
 		AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader.loadMetadata(this.beanClassLoader);
 
-		//标注类的元信息
+		// 标注类的元信息
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
 
-		//获取所有的自动配置类（classpath*:/META-INF/spring.factories中配置的key为org.springframework.boot.autoconfigure.EnableAutoConfiguration的类）
-		//获取自动装配的候选类名集合
+		// 获取所有的自动配置类（classpath*:/META-INF/spring.factories中配置的key为org.springframework.boot.autoconfigure.EnableAutoConfiguration的类）
+		// 获取自动装配的候选类名集合
 		List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
 
-		//移除重复的对象
+		// 移除重复的对象
 		configurations = removeDuplicates(configurations);
 
-		//需要排除的自动装配类（springboot的主类上 @SpringBootApplication(exclude = {com.demo.starter.config.DemoConfig.class})指定的排除的自动装配类）
+		// 需要排除的自动装配类（springboot的主类上 @SpringBootApplication(exclude = {com.demo.starter.config.DemoConfig.class})指定的排除的自动装配类）
 		Set<String> exclusions = getExclusions(annotationMetadata, attributes);
 
 		checkExcludedClasses(configurations, exclusions);
 
-		//将需要排除的类从 configurations remove掉
+		// 将需要排除的类从 configurations remove掉
 		configurations.removeAll(exclusions);
 
-		//过滤 autoConfigurationMetadata作为过滤条件
+		// 过滤 autoConfigurationMetadata作为过滤条件
 		configurations = filter(configurations, autoConfigurationMetadata);
 
 		fireAutoConfigurationImportEvents(configurations, exclusions);
@@ -404,7 +407,7 @@ public class AutoConfigurationImportSelector
 		}
 
 		@Override
-		public void process(AnnotationMetadata annotationMetadata,
+		public void process(AnnotationMetadata annotationMetadata, // 第一个入参就是注解元数据 就是我们主启动类上面的@SpringbootApplication注解的信息
 							DeferredImportSelector deferredImportSelector) {
 			String[] imports = deferredImportSelector.selectImports(annotationMetadata);
 			for (String importClassName : imports) {

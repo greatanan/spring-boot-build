@@ -1,19 +1,3 @@
-/*
- * Copyright 2012-2017 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.springframework.boot.autoconfigure;
 
 import java.lang.annotation.Documented;
@@ -37,7 +21,10 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
-@Import(AutoConfigurationPackages.Registrar.class)
+// AutoConfigurationPackages的作用是用于存储自动配置包以供以后使用（例如，由JPA实体*扫描仪提供）。
+// 关于自动配置其实这个@AutoConfigurationPackage并没有什么作用  我的理解是这个注解的作用就是通过AutoConfigurationPackages保存一个我们的自动配置包 供以后可能使用
+// 可以参考文档 https://docs.spring.io/spring-boot/docs/current/api/
+@Import(AutoConfigurationPackages.Registrar.class) // 注入AutoConfigurationPackages.Registrar.class
 public @interface AutoConfigurationPackage {
 
 }
