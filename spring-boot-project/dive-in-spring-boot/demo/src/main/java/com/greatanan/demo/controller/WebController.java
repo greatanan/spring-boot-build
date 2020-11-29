@@ -21,13 +21,4 @@ public class WebController {
 		return "qqqq";
 	}
 
-	/**
-	 * 测试统一异常处理
-	 */
-	@RequestMapping("/testUnifiedExceptionHandling")
-	public String test() {
-		int i = 10 / 0;
-		return "success";
-	}
-
 }
