@@ -52,14 +52,12 @@ import org.springframework.util.StringUtils;
  *
  *
  * 真正实现自动配置的核心类
- * 这类类是在注解{@link EnableAutoConfiguration} 注册进来的
+ * 这个类是在注解{@link EnableAutoConfiguration} 注册进来的
  * 这个类实现了接口 DeferredImportSelector  而这个接口继承spring中的接口 ImportSelector
  * 既然是ImportSelector 就不用接着往下说了吧
  *
  */
-public class AutoConfigurationImportSelector implements DeferredImportSelector,
-		BeanClassLoaderAware, ResourceLoaderAware,
-		BeanFactoryAware, EnvironmentAware, Ordered {
+public class AutoConfigurationImportSelector implements DeferredImportSelector, BeanClassLoaderAware, ResourceLoaderAware, BeanFactoryAware, EnvironmentAware, Ordered {
 
 	private static final String[] NO_IMPORTS = {};
 
@@ -75,11 +73,11 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 
 	private ResourceLoader resourceLoader;
 
-	// 自动装配
 	@Override
 	public String[] selectImports(AnnotationMetadata annotationMetadata) {
 
-		if (!isEnabled(annotationMetadata)) { // 判断是否开启自动配置
+		// 判断是否开启自动配置
+		if (!isEnabled(annotationMetadata)) {
 			return NO_IMPORTS;
 		}
 
@@ -88,8 +86,10 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 		// 标注类的元信息
 		AnnotationAttributes attributes = getAttributes(annotationMetadata);
 
-		// 获取所有的自动配置类（classpath*:/META-INF/spring.factories中配置的key为org.springframework.boot.autoconfigure.EnableAutoConfiguration的类）
-		// 获取自动装配的候选类名集合
+		/*
+		  获取所有的自动配置类（classpath*:/META-INF/spring.factories中配置的key为org.springframework.boot.autoconfigure.EnableAutoConfiguration的类）
+		  获取自动装配的候选类名集合
+		 */
 		List<String> configurations = getCandidateConfigurations(annotationMetadata, attributes);
 
 		// 移除重复的对象
@@ -106,6 +106,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 		// 过滤 autoConfigurationMetadata作为过滤条件
 		configurations = filter(configurations, autoConfigurationMetadata);
 
+		// 触发自动配置导入事件
 		fireAutoConfigurationImportEvents(configurations, exclusions);
 
 		return StringUtils.toStringArray(configurations);
@@ -119,8 +120,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 	protected boolean isEnabled(AnnotationMetadata metadata) {
 		if (getClass() == AutoConfigurationImportSelector.class) {
 			return getEnvironment().getProperty(
-					EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, Boolean.class,
-					true);
+					EnableAutoConfiguration.ENABLED_OVERRIDE_PROPERTY, Boolean.class, true);
 		}
 		return true;
 	}
@@ -167,14 +167,16 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 	 */
 	protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, AnnotationAttributes attributes) {
 
-		// SpringFactoriesLoader类里面的属性： public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
-		// 加载指定类型 EnableAutoConfiguration 对应的，在 `META-INF/spring.factories` 里的类名的数组
-		// 而且从SpringFactoriesLoader类里面可以看出来spring.factories文件不是唯一的
+		/*
+		  SpringFactoriesLoader类里面的属性： public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+		  加载指定类型 EnableAutoConfiguration 对应的，在 `META-INF/spring.factories` 里的类名的数组
+		  而且从SpringFactoriesLoader类里面可以看出来spring.factories文件不是唯一的
+		  my: 另外我们主要的一点就是SpringFactoriesLoader是spring框架的core模块的 并不是springboot框架的
+		  其实就是spring的工厂加载机制 spring框架足够优秀留下了很多口子，springboot就是利用了spring的工厂加载机制加载"META-INF/spring.factories"下面的自动配置类
+		 */
 		List<String> configurations = SpringFactoriesLoader.loadFactoryNames(getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
 
-		Assert.notEmpty(configurations,
-				"No auto configuration classes found in META-INF/spring.factories. If you "
-						+ "are using a custom packaging, make sure that file is correct.");
+		Assert.notEmpty(configurations, "No auto configuration classes found in META-INF/spring.factories. If you " + "are using a custom packaging, make sure that file is correct.");
 
 		return configurations;
 	}
@@ -302,12 +304,11 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
 		return Arrays.asList((value != null) ? value : new String[0]);
 	}
 
-	private void fireAutoConfigurationImportEvents(List<String> configurations,
-												   Set<String> exclusions) {
+	private void fireAutoConfigurationImportEvents(List<String> configurations, Set<String> exclusions) {
+
 		List<AutoConfigurationImportListener> listeners = getAutoConfigurationImportListeners();
 		if (!listeners.isEmpty()) {
-			AutoConfigurationImportEvent event = new AutoConfigurationImportEvent(this,
-					configurations, exclusions);
+			AutoConfigurationImportEvent event = new AutoConfigurationImportEvent(this, configurations, exclusions);
 			for (AutoConfigurationImportListener listener : listeners) {
 				invokeAwareMethods(listener);
 				listener.onAutoConfigurationImportEvent(event);

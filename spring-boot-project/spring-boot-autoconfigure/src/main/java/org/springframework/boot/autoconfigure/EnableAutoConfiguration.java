@@ -57,14 +57,15 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
  * @see SpringBootApplication
  *
  *
- *  @EnableAutoConfiguration用于开启自动配置功能，是 spring-boot-autoconfigure 项目最核心的注解
+ *   @EnableAutoConfiguration用于开启自动配置功能 是 spring-boot-autoconfigure 项目最核心的注解
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Inherited
 @AutoConfigurationPackage
-@Import(AutoConfigurationImportSelector.class) // 借助@import,扫描并实例化满足条件的自动配置的bean，然后加载到IOC容器中
+// 借助@import,扫描并实例化满足条件的自动配置的bean，然后加载到IOC容器中
+@Import(AutoConfigurationImportSelector.class)
 public @interface EnableAutoConfiguration {
 
 	String ENABLED_OVERRIDE_PROPERTY = "spring.boot.enableautoconfiguration";
