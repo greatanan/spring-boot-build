@@ -16,11 +16,6 @@
 
 package org.springframework.boot.context.properties;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -32,6 +27,11 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Import selector that sets up binding of external properties to configuration classes
@@ -61,20 +61,21 @@ class EnableConfigurationPropertiesImportSelector implements ImportSelector {
 	/**
 	 * {@link ImportBeanDefinitionRegistrar} for configuration properties support.
 	 */
-	public static class ConfigurationPropertiesBeanRegistrar
-			implements ImportBeanDefinitionRegistrar {
+	public static class ConfigurationPropertiesBeanRegistrar implements ImportBeanDefinitionRegistrar {
 
 		@Override
-		public void registerBeanDefinitions(AnnotationMetadata metadata,
-											BeanDefinitionRegistry registry) {
-			getTypes(metadata).forEach((type) -> register(registry,
+		public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+
+			List<Class<?>> types = getTypes(metadata);
+			types.forEach((type) -> register(registry,
 					(ConfigurableListableBeanFactory) registry, type));
 		}
 
 		private List<Class<?>> getTypes(AnnotationMetadata metadata) {
-			MultiValueMap<String, Object> attributes = metadata
-					.getAllAnnotationAttributes(
-							EnableConfigurationProperties.class.getName(), false);
+			MultiValueMap<String, Object> attributes =
+					metadata.getAllAnnotationAttributes(
+							EnableConfigurationProperties.class.getName(), false
+					);
 			return collectClasses((attributes != null) ? attributes.get("value")
 					: Collections.emptyList());
 		}
@@ -85,8 +86,7 @@ class EnableConfigurationPropertiesImportSelector implements ImportSelector {
 					.collect(Collectors.toList());
 		}
 
-		private void register(BeanDefinitionRegistry registry,
-							  ConfigurableListableBeanFactory beanFactory, Class<?> type) {
+		private void register(BeanDefinitionRegistry registry, ConfigurableListableBeanFactory beanFactory, Class<?> type) {
 			String name = getName(type);
 			if (!containsBeanDefinition(beanFactory, name)) {
 				registerBeanDefinition(registry, name, type);
@@ -94,15 +94,13 @@ class EnableConfigurationPropertiesImportSelector implements ImportSelector {
 		}
 
 		private String getName(Class<?> type) {
-			ConfigurationProperties annotation = AnnotationUtils.findAnnotation(type,
-					ConfigurationProperties.class);
+			ConfigurationProperties annotation = AnnotationUtils.findAnnotation(type, ConfigurationProperties.class);
 			String prefix = (annotation != null) ? annotation.prefix() : "";
 			return (StringUtils.hasText(prefix) ? prefix + "-" + type.getName()
 					: type.getName());
 		}
 
-		private boolean containsBeanDefinition(
-				ConfigurableListableBeanFactory beanFactory, String name) {
+		private boolean containsBeanDefinition(ConfigurableListableBeanFactory beanFactory, String name) {
 			if (beanFactory.containsBeanDefinition(name)) {
 				return true;
 			}
@@ -114,8 +112,7 @@ class EnableConfigurationPropertiesImportSelector implements ImportSelector {
 			return false;
 		}
 
-		private void registerBeanDefinition(BeanDefinitionRegistry registry, String name,
-											Class<?> type) {
+		private void registerBeanDefinition(BeanDefinitionRegistry registry, String name, Class<?> type) {
 			assertHasAnnotation(type);
 			GenericBeanDefinition definition = new GenericBeanDefinition();
 			definition.setBeanClass(type);

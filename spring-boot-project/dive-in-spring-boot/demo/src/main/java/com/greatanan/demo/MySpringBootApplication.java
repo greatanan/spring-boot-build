@@ -6,6 +6,7 @@ import com.greatanan.demo.service.WebService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * @Description:
@@ -13,6 +14,7 @@ import org.springframework.context.ApplicationContext;
  * @Date: 2020/11/20
  */
 @SpringBootApplication
+@EnableAsync
 public class MySpringBootApplication {
 
 	public static void main(String[] args) {

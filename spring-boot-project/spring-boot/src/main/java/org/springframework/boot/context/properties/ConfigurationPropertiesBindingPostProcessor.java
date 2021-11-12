@@ -16,9 +16,6 @@
 
 package org.springframework.boot.context.properties;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -32,6 +29,9 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.PropertySources;
 import org.springframework.validation.annotation.Validated;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
 /**
  * {@link BeanPostProcessor} to bind {@link PropertySources} to beans annotated with
  * {@link ConfigurationProperties}.
@@ -42,14 +42,18 @@ import org.springframework.validation.annotation.Validated;
  * @author Stephane Nicoll
  * @author Madhura Bhave
  */
-public class ConfigurationPropertiesBindingPostProcessor implements BeanPostProcessor,
-		PriorityOrdered, ApplicationContextAware, InitializingBean {
+
+/**
+ * // my重要: 这是一个bean后置处理器，作用就是处理@ConfigurationProperties注解的
+ * 这个bean是什么时机注入容器中的呢？其实就在ConfigurationPropertiesBindingPostProcessorRegistrar
+ * {@link ConfigurationPropertiesBindingPostProcessorRegistrar}
+ */
+public class ConfigurationPropertiesBindingPostProcessor implements BeanPostProcessor, PriorityOrdered, ApplicationContextAware, InitializingBean {
 
 	/**
 	 * The bean name that this post-processor is registered with.
 	 */
-	public static final String BEAN_NAME = ConfigurationPropertiesBindingPostProcessor.class
-			.getName();
+	public static final String BEAN_NAME = ConfigurationPropertiesBindingPostProcessor.class.getName();
 
 	/**
 	 * The bean name of the configuration properties validator.
@@ -63,8 +67,7 @@ public class ConfigurationPropertiesBindingPostProcessor implements BeanPostProc
 	private ConfigurationPropertiesBinder configurationPropertiesBinder;
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 
@@ -85,11 +88,13 @@ public class ConfigurationPropertiesBindingPostProcessor implements BeanPostProc
 	}
 
 	@Override
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
-		ConfigurationProperties annotation = getAnnotation(bean, beanName,
-				ConfigurationProperties.class);
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		// my重要: bean后置处理器的一个应用
+		// my: postProcessBeforeInitialization方法BeanPostProcessor的,所以每一个bean的创建都会走这个方法
+		// my: 也就是说每一个bean的创建都会去判断这个bean是不是有@ConfigurationProperties注解，如果有就绑定参数
+		ConfigurationProperties annotation = getAnnotation(bean, beanName, ConfigurationProperties.class);
 		if (annotation != null) {
+			// my重要: 绑定参数
 			bind(bean, beanName, annotation);
 		}
 		return bean;
