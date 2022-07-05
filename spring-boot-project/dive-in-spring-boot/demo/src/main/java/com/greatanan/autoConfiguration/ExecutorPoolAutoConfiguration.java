@@ -1,7 +1,6 @@
 package com.greatanan.autoConfiguration;
 
 import com.greatanan.demo.property.ExecutorProperties;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,10 +30,13 @@ public class ExecutorPoolAutoConfiguration {
 	 * 自定义实现异步线程池配置
 	 */
 	@Slf4j
-	@AllArgsConstructor
 	public static class EcAsyncConfigurer implements AsyncConfigurer {
 
 		private final ExecutorProperties executorProperties;
+
+		public EcAsyncConfigurer(ExecutorProperties executorProperties) {
+			this.executorProperties = executorProperties;
+		}
 
 		/**
 		 * 这个方法执行需要在启动类上面加@EnableAsync
