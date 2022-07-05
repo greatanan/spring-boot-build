@@ -106,9 +106,9 @@ public class ConfigurationPropertiesBindingPostProcessor implements BeanPostProc
 		Annotation[] annotations = (validated != null)
 				? new Annotation[]{annotation, validated}
 				: new Annotation[]{annotation};
-		Bindable<?> target = Bindable.of(type).withExistingValue(bean)
-				.withAnnotations(annotations);
+		Bindable<?> target = Bindable.of(type).withExistingValue(bean).withAnnotations(annotations);
 		try {
+			// my重要: 绑定参数
 			this.configurationPropertiesBinder.bind(target);
 		} catch (Exception ex) {
 			throw new ConfigurationPropertiesBindException(beanName, bean, annotation,

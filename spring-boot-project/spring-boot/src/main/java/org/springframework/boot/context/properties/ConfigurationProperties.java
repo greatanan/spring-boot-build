@@ -32,7 +32,12 @@ import java.lang.annotation.*;
  * @see ConfigurationPropertiesBindingPostProcessor
  * @see EnableConfigurationProperties
  */
-// my: 该注解的解析是在ConfigurationPropertiesBindingPostProcessor
+
+/**
+ *
+ // 该注解的解析是在ConfigurationPropertiesBindingPostProcessor
+ * {@link ConfigurationPropertiesBindingPostProcessor }
+ */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

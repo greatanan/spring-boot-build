@@ -1,5 +1,6 @@
 package com.greatanan.autoConfiguration;
 
+import com.greatanan.demo.property.ExecutorProperties;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;

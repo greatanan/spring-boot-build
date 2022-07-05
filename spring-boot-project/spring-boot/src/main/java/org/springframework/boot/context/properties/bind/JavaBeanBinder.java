@@ -16,6 +16,13 @@
 
 package org.springframework.boot.context.properties.bind;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.boot.context.properties.bind.Binder.Context;
+import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
+import org.springframework.boot.context.properties.source.ConfigurationPropertyState;
+import org.springframework.core.MethodParameter;
+import org.springframework.core.ResolvableType;
+
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -25,13 +32,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.boot.context.properties.bind.Binder.Context;
-import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
-import org.springframework.boot.context.properties.source.ConfigurationPropertyState;
-import org.springframework.core.MethodParameter;
-import org.springframework.core.ResolvableType;
 
 /**
  * {@link BeanBinder} for mutable Java Beans.
@@ -64,14 +64,16 @@ class JavaBeanBinder implements BeanBinder {
 		return bound;
 	}
 
-	private <T> boolean bind(BeanSupplier<T> beanSupplier,
-							 BeanPropertyBinder propertyBinder, BeanProperty property) {
+	private <T> boolean bind(BeanSupplier<T> beanSupplier, BeanPropertyBinder propertyBinder, BeanProperty property) {
+
 		String propertyName = property.getName();
 		ResolvableType type = property.getType();
 		Supplier<Object> value = property.getValue(beanSupplier);
 		Annotation[] annotations = property.getAnnotations();
-		Object bound = propertyBinder.bindProperty(propertyName,
-				Bindable.of(type).withSuppliedValue(value).withAnnotations(annotations));
+
+		// my: 获取配置文件中具体的某个key对应的value
+		Object bound = propertyBinder.bindProperty(propertyName, Bindable.of(type).withSuppliedValue(value).withAnnotations(annotations));
+
 		if (bound == null) {
 			return false;
 		}
@@ -313,7 +315,7 @@ class JavaBeanBinder implements BeanBinder {
 		public void setValue(Supplier<?> instance, Object value) {
 			try {
 				this.setter.setAccessible(true);
-				this.setter.invoke(instance.get(), value);
+				this.setter.invoke(instance.get(), value);//this.setter是set方法
 			} catch (Exception ex) {
 				throw new IllegalStateException(
 						"Unable to set value for property " + this.name, ex);

@@ -16,10 +16,6 @@
 
 package org.springframework.boot.context.properties;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
 import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.boot.context.properties.bind.BindHandler;
 import org.springframework.boot.context.properties.bind.Bindable;
@@ -39,6 +35,10 @@ import org.springframework.core.env.PropertySources;
 import org.springframework.util.Assert;
 import org.springframework.validation.Validator;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Internal class by the {@link ConfigurationPropertiesBindingPostProcessor} to handle the
@@ -61,22 +61,16 @@ class ConfigurationPropertiesBinder {
 
 	private volatile Binder binder;
 
-	ConfigurationPropertiesBinder(ApplicationContext applicationContext,
-								  String validatorBeanName) {
+	ConfigurationPropertiesBinder(ApplicationContext applicationContext, String validatorBeanName) {
 		this.applicationContext = applicationContext;
-		this.propertySources = new PropertySourcesDeducer(applicationContext)
-				.getPropertySources();
-		this.configurationPropertiesValidator = getConfigurationPropertiesValidator(
-				applicationContext, validatorBeanName);
-		this.jsr303Present = ConfigurationPropertiesJsr303Validator
-				.isJsr303Present(applicationContext);
+		this.propertySources = new PropertySourcesDeducer(applicationContext).getPropertySources();
+		this.configurationPropertiesValidator = getConfigurationPropertiesValidator(applicationContext, validatorBeanName);
+		this.jsr303Present = ConfigurationPropertiesJsr303Validator.isJsr303Present(applicationContext);
 	}
 
-	public void bind(Bindable<?> target) {
-		ConfigurationProperties annotation = target
-				.getAnnotation(ConfigurationProperties.class);
-		Assert.state(annotation != null,
-				() -> "Missing @ConfigurationProperties on " + target);
+	public void bind(Bindable<?> target) {//target是我们要绑定的实体类的包装，可以理解为我们要绑定的实体类
+		ConfigurationProperties annotation = target.getAnnotation(ConfigurationProperties.class);
+		Assert.state(annotation != null, () -> "Missing @ConfigurationProperties on " + target);
 		List<Validator> validators = getValidators(target);
 		BindHandler bindHandler = getBindHandler(annotation, validators);
 		getBinder().bind(annotation.prefix(), target, bindHandler);
@@ -106,14 +100,12 @@ class ConfigurationPropertiesBinder {
 
 	private Validator getJsr303Validator() {
 		if (this.jsr303Validator == null) {
-			this.jsr303Validator = new ConfigurationPropertiesJsr303Validator(
-					this.applicationContext);
+			this.jsr303Validator = new ConfigurationPropertiesJsr303Validator(this.applicationContext);
 		}
 		return this.jsr303Validator;
 	}
 
-	private BindHandler getBindHandler(ConfigurationProperties annotation,
-									   List<Validator> validators) {
+	private BindHandler getBindHandler(ConfigurationProperties annotation, List<Validator> validators) {
 		BindHandler handler = new IgnoreTopLevelConverterNotFoundBindHandler();
 		if (annotation.ignoreInvalidFields()) {
 			handler = new IgnoreErrorsBindHandler(handler);
@@ -123,8 +115,7 @@ class ConfigurationPropertiesBinder {
 			handler = new NoUnboundElementsBindHandler(handler, filter);
 		}
 		if (!validators.isEmpty()) {
-			handler = new ValidationBindHandler(handler,
-					validators.toArray(new Validator[0]));
+			handler = new ValidationBindHandler(handler, validators.toArray(new Validator[0]));
 		}
 		return handler;
 	}
@@ -147,14 +138,12 @@ class ConfigurationPropertiesBinder {
 	}
 
 	private ConversionService getConversionService() {
-		return new ConversionServiceDeducer(this.applicationContext)
-				.getConversionService();
+		return new ConversionServiceDeducer(this.applicationContext).getConversionService();
 	}
 
 	private Consumer<PropertyEditorRegistry> getPropertyEditorInitializer() {
 		if (this.applicationContext instanceof ConfigurableApplicationContext) {
-			return ((ConfigurableApplicationContext) this.applicationContext)
-					.getBeanFactory()::copyRegisteredEditorsTo;
+			return ((ConfigurableApplicationContext) this.applicationContext).getBeanFactory()::copyRegisteredEditorsTo;
 		}
 		return null;
 	}

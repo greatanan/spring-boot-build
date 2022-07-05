@@ -16,11 +16,6 @@
 
 package org.springframework.boot.web.server;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -29,6 +24,11 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.util.LambdaSafe;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@link BeanPostProcessor} that applies all {@link WebServerFactoryCustomizer} beans
@@ -39,8 +39,7 @@ import org.springframework.util.Assert;
  * @author Stephane Nicoll
  * @since 2.0.0
  */
-public class WebServerFactoryCustomizerBeanPostProcessor
-		implements BeanPostProcessor, BeanFactoryAware {
+public class WebServerFactoryCustomizerBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
 
 	private ListableBeanFactory beanFactory;
 
@@ -55,8 +54,7 @@ public class WebServerFactoryCustomizerBeanPostProcessor
 	}
 
 	@Override
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof WebServerFactory) {
 			postProcessBeforeInitialization((WebServerFactory) bean);
 		}
@@ -64,16 +62,13 @@ public class WebServerFactoryCustomizerBeanPostProcessor
 	}
 
 	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
 	}
 
 	@SuppressWarnings("unchecked")
 	private void postProcessBeforeInitialization(WebServerFactory webServerFactory) {
-		LambdaSafe
-				.callbacks(WebServerFactoryCustomizer.class, getCustomizers(),
-						webServerFactory)
+		LambdaSafe.callbacks(WebServerFactoryCustomizer.class, getCustomizers(), webServerFactory)
 				.withLogger(WebServerFactoryCustomizerBeanPostProcessor.class)
 				.invoke((customizer) -> customizer.customize(webServerFactory));
 	}
@@ -90,8 +85,7 @@ public class WebServerFactoryCustomizerBeanPostProcessor
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private Collection<WebServerFactoryCustomizer<?>> getWebServerFactoryCustomizerBeans() {
-		return (Collection) this.beanFactory
-				.getBeansOfType(WebServerFactoryCustomizer.class, false, false).values();
+		return (Collection) this.beanFactory.getBeansOfType(WebServerFactoryCustomizer.class, false, false).values();
 	}
 
 }

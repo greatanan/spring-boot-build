@@ -96,8 +96,7 @@ class EnableConfigurationPropertiesImportSelector implements ImportSelector {
 		private String getName(Class<?> type) {
 			ConfigurationProperties annotation = AnnotationUtils.findAnnotation(type, ConfigurationProperties.class);
 			String prefix = (annotation != null) ? annotation.prefix() : "";
-			return (StringUtils.hasText(prefix) ? prefix + "-" + type.getName()
-					: type.getName());
+			return (StringUtils.hasText(prefix) ? prefix + "-" + type.getName() : type.getName());
 		}
 
 		private boolean containsBeanDefinition(ConfigurableListableBeanFactory beanFactory, String name) {

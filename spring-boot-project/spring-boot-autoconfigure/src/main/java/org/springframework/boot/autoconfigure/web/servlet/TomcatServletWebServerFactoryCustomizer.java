@@ -31,8 +31,7 @@ import org.springframework.util.ObjectUtils;
  * @author Phillip Webb
  * @since 2.0.0
  */
-public class TomcatServletWebServerFactoryCustomizer
-		implements WebServerFactoryCustomizer<TomcatServletWebServerFactory>, Ordered {
+public class TomcatServletWebServerFactoryCustomizer implements WebServerFactoryCustomizer<TomcatServletWebServerFactory>, Ordered {
 
 	private final ServerProperties serverProperties;
 
@@ -49,29 +48,22 @@ public class TomcatServletWebServerFactoryCustomizer
 	public void customize(TomcatServletWebServerFactory factory) {
 		ServerProperties.Tomcat tomcatProperties = this.serverProperties.getTomcat();
 		if (!ObjectUtils.isEmpty(tomcatProperties.getAdditionalTldSkipPatterns())) {
-			factory.getTldSkipPatterns()
-					.addAll(tomcatProperties.getAdditionalTldSkipPatterns());
+			factory.getTldSkipPatterns().addAll(tomcatProperties.getAdditionalTldSkipPatterns());
 		}
 		if (tomcatProperties.getRedirectContextRoot() != null) {
-			customizeRedirectContextRoot(factory,
-					tomcatProperties.getRedirectContextRoot());
+			customizeRedirectContextRoot(factory, tomcatProperties.getRedirectContextRoot());
 		}
 		if (tomcatProperties.getUseRelativeRedirects() != null) {
-			customizeUseRelativeRedirects(factory,
-					tomcatProperties.getUseRelativeRedirects());
+			customizeUseRelativeRedirects(factory, tomcatProperties.getUseRelativeRedirects());
 		}
 	}
 
-	private void customizeRedirectContextRoot(ConfigurableTomcatWebServerFactory factory,
-											  boolean redirectContextRoot) {
-		factory.addContextCustomizers((context) -> context
-				.setMapperContextRootRedirectEnabled(redirectContextRoot));
+	private void customizeRedirectContextRoot(ConfigurableTomcatWebServerFactory factory, boolean redirectContextRoot) {
+		factory.addContextCustomizers((context) -> context.setMapperContextRootRedirectEnabled(redirectContextRoot));
 	}
 
-	private void customizeUseRelativeRedirects(ConfigurableTomcatWebServerFactory factory,
-											   boolean useRelativeRedirects) {
-		factory.addContextCustomizers(
-				(context) -> context.setUseRelativeRedirects(useRelativeRedirects));
+	private void customizeUseRelativeRedirects(ConfigurableTomcatWebServerFactory factory, boolean useRelativeRedirects) {
+		factory.addContextCustomizers((context) -> context.setUseRelativeRedirects(useRelativeRedirects));
 	}
 
 }

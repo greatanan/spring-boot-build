@@ -17,12 +17,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(EnableConfigurationPropertiesImportSelector.class)
-
-
-// my: 这个注解EnableConfigurationProperties是什么时候生效的呢，其实1是手动设置2就是
-// 自动注入啦，在类ConfigurationPropertiesAutoConfiguration中引入了这个注解，ConfigurationPropertiesAutoConfiguration是自动配置类，放在了spring.factory文件中了
 /**
+ * my: 这个注解EnableConfigurationProperties是什么时候生效的呢，其实1是手动设置,2就是
+ * 自动注入啦，在类ConfigurationPropertiesAutoConfiguration中引入了这个注解，ConfigurationPropertiesAutoConfiguration是自动配置类，放在了spring.factory文件中了
  * {@link org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration}
+ *  {@link ConfigurationProperties}
  */
 public @interface EnableConfigurationProperties {
 

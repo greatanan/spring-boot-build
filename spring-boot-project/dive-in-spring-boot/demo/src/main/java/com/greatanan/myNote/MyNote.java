@@ -12,6 +12,9 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
     启动内嵌的tomcat:
                  {@link TomcatWebServer#initialize()}
 
+    springboot内嵌tomcat相关的自动配置类
+ 				{@link org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration}
+
     SpringFactoriesLoader:
                  {@link SpringFactoriesLoader}
 

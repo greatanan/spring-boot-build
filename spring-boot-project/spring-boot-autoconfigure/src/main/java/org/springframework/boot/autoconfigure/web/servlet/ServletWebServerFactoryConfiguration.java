@@ -16,16 +16,12 @@
 
 package org.springframework.boot.autoconfigure.web.servlet;
 
-import javax.servlet.Servlet;
-
 import io.undertow.Undertow;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.coyote.UpgradeProtocol;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.Loader;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.xnio.SslClientAuthMode;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
@@ -35,6 +31,9 @@ import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFa
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.xnio.SslClientAuthMode;
+
+import javax.servlet.Servlet;
 
 /**
  * Configuration classes for servlet web servers
@@ -48,6 +47,11 @@ import org.springframework.context.annotation.Configuration;
  * @author Brian Clozel
  * @author Stephane Nicoll
  */
+
+/**
+ * // my: 这个类是在ServletWebServerFactoryAutoConfiguration中注入到容器中的
+ * {@link ServletWebServerFactoryAutoConfiguration}
+ */
 class ServletWebServerFactoryConfiguration {
 
 	@Configuration
@@ -55,6 +59,9 @@ class ServletWebServerFactoryConfiguration {
 	@ConditionalOnMissingBean(value = ServletWebServerFactory.class, search = SearchStrategy.CURRENT)
 	public static class EmbeddedTomcat {
 
+		/**
+		 * 注入TomcatServletWebServerFactory
+		 */
 		@Bean
 		public TomcatServletWebServerFactory tomcatServletWebServerFactory() {
 			return new TomcatServletWebServerFactory();

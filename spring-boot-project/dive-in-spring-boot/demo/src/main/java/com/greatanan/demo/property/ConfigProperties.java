@@ -1,7 +1,6 @@
-package com.greatanan.demo.config;
+package com.greatanan.demo.property;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
 
 @ConfigurationProperties(prefix = "demo.hello")
 public class ConfigProperties {
@@ -15,4 +14,5 @@ public class ConfigProperties {
 	public void setHello(String hello) {
 		this.hello = hello;
 	}
+
 }
